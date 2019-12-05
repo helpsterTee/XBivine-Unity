@@ -5,6 +5,9 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+# Custom
+Assets/WorldMaterialsFree*
+
 # Visual Studio cache directory
 .vs/
 
