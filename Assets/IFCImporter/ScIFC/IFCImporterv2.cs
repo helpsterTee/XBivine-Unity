@@ -39,6 +39,8 @@ public class IFCImporterv2 : MonoBehaviour
     public MaterialAssignment MaterialAssignment;
 
     private Dictionary<string, Material> classToMat = new Dictionary<string, Material>();
+    private Dictionary<string, List<IFCKV.KeyValueItem>> idToKV = new Dictionary<string, List<IFCKV.KeyValueItem>>();
+
     private Dictionary<Mesh, string> meshToIfcType;
     private enum Facing { Up, Forward, Right };
 
@@ -95,6 +97,8 @@ public class IFCImporterv2 : MonoBehaviour
             yield return Ninja.JumpBack;
             res = RestCall(baseUrl + "/api/xbim/load?projectid=" + projectid.ToString());
 
+            string unitAttrib = null;
+
             jo = JObject.Parse(res);
             if (jo["status"].Value<string>().Equals("success"))
             {
@@ -107,6 +111,8 @@ public class IFCImporterv2 : MonoBehaviour
                 if (lenJo["status"].Value<string>().Equals("success"))
                 {
                     string unit = lenJo["unit"].Value<string>();
+                    unitAttrib = unit;
+
                     Debug.Log("Project file is measured in " + unit);
                     if (unit.Equals("MILLIMETRE"))
                     {
@@ -131,6 +137,11 @@ public class IFCImporterv2 : MonoBehaviour
                 //create parent GameObject
                 go = new GameObject();
                 go.name = name;
+
+                // add ifc attributes
+                IFCKV attribs = go.AddComponent<IFCKV>();
+                attribs.attribs.Add(new IFCKV.KeyValueItem { Key = "unit", Value = unitAttrib });
+
                 yield return Ninja.JumpBack;
 
                 for (var i = 0; i < shJo.Count; i++)
@@ -140,6 +151,13 @@ public class IFCImporterv2 : MonoBehaviour
                     string iName = item["attributes"]["Name"].Value<string>();
                     string iType = item["attributes"]["IfcType"].Value<string>();
                     string iGlobalId = item["attributes"]["GlobalId"].Value<string>();
+
+                    // create KV list for item
+                    List<IFCKV.KeyValueItem> kvlist = new List<IFCKV.KeyValueItem>();
+                    kvlist.Add(new IFCKV.KeyValueItem { Key = "name", Value = iName });
+                    kvlist.Add(new IFCKV.KeyValueItem { Key = "type", Value = iType });
+                    kvlist.Add(new IFCKV.KeyValueItem { Key = "globalId", Value = iGlobalId });
+                    idToKV.Add(iGlobalId, kvlist);
 
                     Debug.Log("Iterating " + iName);
 
@@ -314,6 +332,15 @@ public class IFCImporterv2 : MonoBehaviour
 
                     GameObject ifcItem = new GameObject(iGlobalId);
                     ifcItem.transform.parent = go.transform;
+
+                    // add metadata
+                    List<IFCKV.KeyValueItem> meshAttribs = null;
+                    idToKV.TryGetValue(iGlobalId, out meshAttribs);
+                    if (meshAttribs != null)
+                    {
+                        var itemList = ifcItem.AddComponent<IFCKV>();
+                        itemList.attribs = meshAttribs;
+                    }
 
                     foreach (Mesh m in meshes)
                     {
