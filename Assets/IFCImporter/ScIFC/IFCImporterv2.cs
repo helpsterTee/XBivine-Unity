@@ -289,9 +289,9 @@ public class IFCImporterv2 : MonoBehaviour
                                 {
                                     // REALLY? Check that!
                                     // Future helpsterTee: Checked it, works.
-                                    normals.Add(facNormals[i0]);
-                                    normals.Add(facNormals[i1]);
-                                    normals.Add(facNormals[i2]);
+                                    normals.Add(facNormals[k]);
+                                    normals.Add(facNormals[k + 1]);
+                                    normals.Add(facNormals[k + 2]);
 
                                     // generate UVs, because the supplied ones are shit?
                                     Quaternion r1 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[i0]));
