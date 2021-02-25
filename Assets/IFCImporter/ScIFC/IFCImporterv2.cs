@@ -294,9 +294,9 @@ public class IFCImporterv2 : MonoBehaviour
                                     normals.Add(facNormals[k + 2]);
 
                                     // generate UVs, because the supplied ones are shit?
-                                    Quaternion r1 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[i0]));
-                                    Quaternion r2 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[i1]));
-                                    Quaternion r3 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[i2]));
+                                    Quaternion r1 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[k]));
+                                    Quaternion r2 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[k + 1]));
+                                    Quaternion r3 = Quaternion.Inverse(Quaternion.LookRotation(facNormals[k + 2]));
                                     uvs.Add((Vector2)(r1 * v0) * scaleFactor);
                                     uvs.Add((Vector2)(r2 * v1) * scaleFactor);
                                     uvs.Add((Vector2)(r3 * v2) * scaleFactor);
